@@ -15,7 +15,7 @@
 					"name": "| Run Current File |",
 					"color": "white",
 					"singleInstance": true,
-					"command": "cmd /C e:\\AutoHotKey\\AutoHotKey.exe ${file}", // This is executed in the terminal.
+					"command": "cmd /C d:\\AutoHotKey\\AutoHotKey.exe ${file}", // This is executed in the terminal.
 				}
 			]
 		}

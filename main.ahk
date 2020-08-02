@@ -11,22 +11,22 @@ LoopActive := False
 ; Variables
 Global PhotoImagePosition := [4, 78, 47-4, 120-78]
 Global PhotoImageSignature := "449B7D16CF4056A2CF3CE311BDEFF44C"
-Global InventoryFullPosition := [470, 504, 493-470, 513-504]
+Global InventoryFullPosition := [559, 446, 493-470, 513-504]
 Global InventoryFullSignature := Ant_LoadSignature("InventoryFullSignature.txt")
 Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
-Global InventoryEmptyPosition := [222, 505, 5, 5]
+Global InventoryEmptyPosition := [236, 447, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
 Global LookingForOresPosition := [0,0, 100 100]
 Global LookingForOresPositionSignature := Ant_LoadSignature("LookingForOres.txt")
 Global JakkBasePosX := 1252
 Global JakkBasePosY := 235
 Global JakkWarpPosX := 1287
-Global JakkWarpPosY := 262
+Global JakkWarpPosY := 266
 Global BackToSpotPosX := 1255
-Global BackToSpotPosY := 275
+Global BackToSpotPosY := 277
 Global BackToSpotWarpPosX := 1285
-Global BackToSpotWarpPosY := 282
+Global BackToSpotWarpPosY := 293
 Global Laser1Pos := [1079, 917, 2, 2]
 Global Laser1PosSignature := Ant_LoadSignature("Laser1PosSignature.txt")
 Global Laser2Pos := [1130, 917, 2, 2]
@@ -41,24 +41,24 @@ Stdout(Format(" a {1:d} {2:d} {3:d}",HomeCheckSignature[1],HomeCheckSignature[2]
 Stdout("hw - end")
 return
 
-Numpad6::
+!v::
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(LockIconPosition)
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
 return
 
-Numpad7::
+!b::
 pToken := Gdip_Startup()
 LoopActive := True
 MainLoopCounter := 0
 myTimeStarted := A_Now
 While(LoopActive)
 {
-    WinActivate, EVE
+    WinActivate, EVE -
     Sleep, 1000
     StateMachineLogic()
     MainLoopCounter += 1
@@ -73,11 +73,11 @@ While(LoopActive)
 Gdip_Shutdown(pToken)
 return
 
-Numpad8::
+!n::
 LoopActive := False
 return
 
-Numpad9::
+!m::
 
 ExitApp
 return
@@ -428,7 +428,7 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1800 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click air
                     Laser1Errors := 0
                 }
             }
@@ -455,7 +455,7 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1800 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click air
                     Laser2Errors := 0
                 }
             }
@@ -502,16 +502,17 @@ StateMachineLogic()
     else if (enStateMachine == 4)
     {
         JakkStationX := 1600
-        JakkStationY := 104
+        JakkStationY := 109
         Click, Left , %JakkStationX%, %JakkStationY%
         OpenCargoX := 1309 
         OpenCargoY := 102
         Click, Left , %OpenCargoX%, %OpenCargoY%
         InventoryPositionX := 533
-        InventoryPositionY := 550
+        InventoryPositionY := 550 -58
         Click, Left, %InventoryPositionX%, %InventoryPositionY%
         CargoDropPosX := 1000
         CargoDropPosY := 344
+        Sleep 200
         MouseClickDrag, Left, %InventoryPositionX%, %InventoryPositionY%, %CargoDropPosX%, %CargoDropPosY%
         TransferButtonX := 1175
         TransferButtonY := 550
