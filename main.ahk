@@ -28,8 +28,6 @@ Global Laser1Pos := [1079, 917, 2, 2]
 Global Laser1PosContrast := [1081, 917, 2, 2]
 Global Laser2Pos := [1130, 917, 2, 2]
 Global Laser2PosContrast := [1132, 917, 2, 2]
-Global LockIconPosition := [1321, 88, 25, 25]
-Global LockIconPositionSignature := Ant_LoadSignature("LockIconPosition.txt")
 
 Numpad6::
 ; Test code.
@@ -48,7 +46,7 @@ MainLoopCounter := 0
 myTimeStarted := A_Now
 While(LoopActive)
 {
-    WinActivate, EVE
+    WinActivate, EVE -
     Sleep, 750
     StateMachineLogic()
     MainLoopCounter += 1
@@ -261,12 +259,14 @@ StateMachineLogic()
                 Stdout(Format("Laser1Debug: {1:s} {2:d} {3:d} {4:d} {5:d}", CompareLaser1, Laser1PosTest[3], Laser1PosTest[4], Laser1PosTest[5], Laser1PosTest[6]))
                 Laser1Errors += 1
                 if (Laser1Errors > 5) ; More than 5 seconds not mining
-                {                
+                {
                     l1x := 1075 + 10
                     l1y := 882 + 10
                     Click, Left, %l1x% , %l1y% ; start mining
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
+                    Sleep 500
+                    Click, Left, 1231, 102 ; approach ore
                     Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser1Errors := 0
@@ -295,6 +295,8 @@ StateMachineLogic()
                     Click, Left, %l2x% , %l2y% ; start mining
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
+                    Sleep 500
+                    Click, Left, 1231, 102 ; approach ore
                     Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser2Errors := 0
@@ -327,7 +329,6 @@ StateMachineLogic()
     }
     else if (enStateMachine == 3)
     {
-        
         SigCheck := Ant_CaptureScreenToArrayUsingArray(HomeCheckPosition)
         ComparedPercentage := Ant_ArrayCompare(HomeCheckPositionSignature, SigCheck)
         Stdout(Format("Assume home.. Check: {1:f}", ComparedPercentage))
@@ -364,7 +365,9 @@ StateMachineLogic()
         {
             enStateMachine := 5
             Click, Right , %BackToSpotPosX%, %BackToSpotPosY%
+            Sleep 500
             Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
+            Sleep 500
             Click, Left, 1700, 64 ; click the ores tab
         }
         
