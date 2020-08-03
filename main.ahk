@@ -28,8 +28,10 @@ Global BackToSpotPosY := 275
 Global BackToSpotWarpPosX := 1285
 Global BackToSpotWarpPosY := 282
 Global Laser1Pos := [1079, 917, 2, 2]
+Global Laser1PosContrast := [1081, 917, 2, 2]
 Global Laser1PosSignature := Ant_LoadSignature("Laser1PosSignature.txt")
 Global Laser2Pos := [1130, 917, 2, 2]
+Global Laser2PosContrast := [1132, 917, 2, 2]
 Global Laser2PosSignature := Ant_LoadSignature("Laser2PosSignature.txt")
 Global LockIconPosition := [1321, 88, 25, 25]
 Global LockIconPositionSignature := Ant_LoadSignature("LockIconPosition.txt")
@@ -45,8 +47,10 @@ Numpad6::
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(LockIconPosition)
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
+DebugStringToFile("debugToFileArray2.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
 return
@@ -59,7 +63,7 @@ myTimeStarted := A_Now
 While(LoopActive)
 {
     WinActivate, EVE
-    Sleep, 1000
+    Sleep, 750
     StateMachineLogic()
     MainLoopCounter += 1
     if (MainLoopCounter > 180)
@@ -394,11 +398,12 @@ StateMachineLogic()
         else
         {
             Laser1PosTest := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
-            CompareLaser1 := Ant_ArrayCompare(Laser1PosTest, Laser1PosSignature, 3, 0x00ffffff)
+            Laser1PosTestContrast := Ant_CaptureScreenToArrayUsingArray(Laser1PosContrast)
+            CompareLaser1 := Ant_ArrayCompare(Laser1PosTest, Laser1PosTestContrast, 3, 0x00ffffff)
             Stdout(Format("Laser1: {1:s}", CompareLaser1))
             
             static Laser1Errors := 6 ; start from 6 so it triggers faster
-            if (CompareLaser1 > 0.80)
+            if (CompareLaser1 > 0.40)
             {
                 Stdout(Format("I think this is Laser 1 not mining {1:d}", Laser1Errors))
                 Stdout(Format("Laser1Debug: {1:s} {2:d} {3:d} {4:d} {5:d}", CompareLaser1, Laser1PosTest[3], Laser1PosTest[4], Laser1PosTest[5], Laser1PosTest[6]))
@@ -421,14 +426,14 @@ StateMachineLogic()
                     ; }
                     ; Click, Left, 1234, 102 ; approach
                     ; Sleep 2000
-                    
+
                     l1x := 1075 + 10
                     l1y := 882 + 10
                     Click, Left, %l1x% , %l1y% ; start mining
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1800 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click air
                     Laser1Errors := 0
                 }
             }
@@ -438,11 +443,12 @@ StateMachineLogic()
             }
 
             Laser2PosTest := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
-            CompareLaser2 := Ant_ArrayCompare(Laser2PosTest, Laser2PosSignature, 3, 0x00ffffff)
+            Laser2PosTestConstrast := Ant_CaptureScreenToArrayUsingArray(Laser2PosContrast)
+            CompareLaser2 := Ant_ArrayCompare(Laser2PosTest, Laser2PosTestConstrast, 3, 0x00ffffff)
             Stdout(Format("Laser2: {1:s}", CompareLaser2))
 
             static Laser2Errors := 4 ; start from 6 so it triggers faster
-            if (CompareLaser2 > 0.80)
+            if (CompareLaser2 > 0.4)
             {
                 Stdout(Format("I think this is Laser 2 not mining {1:d}", Laser2Errors))
                 Stdout(Format("Laser2Debug: {1:s} {2:d} {3:d} {4:d} {5:d}", CompareLaser2, Laser2PosTest[3], Laser2PosTest[4], Laser2PosTest[5], Laser2PosTest[6]))
@@ -455,7 +461,7 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1800 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click air
                     Laser2Errors := 0
                 }
             }
