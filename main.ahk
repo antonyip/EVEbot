@@ -22,8 +22,8 @@ Global JakkWarpPosX := JakkBasePosX + 20
 Global JakkWarpPosY := JakkBasePosY + 20
 Global BackToSpotPosX := JakkBasePosX
 Global BackToSpotPosY := JakkBasePosY + 40
-Global BackToSpotWarpPosX := JakkBasePosX
-Global BackToSpotWarpPosY := BackToSpotPosY + 12
+Global BackToSpotWarpPosX := JakkBasePosX + 20
+Global BackToSpotWarpPosY := BackToSpotPosY + 10
 Global Laser1Pos := [1079, 917, 2, 2]
 Global Laser1PosContrast := [1081, 917, 2, 2]
 Global Laser2Pos := [1130, 917, 2, 2]
@@ -369,6 +369,7 @@ StateMachineLogic()
             Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
             Sleep 500
             Click, Left, 1700, 64 ; click the ores tab
+            Sleep 12000 ; witing to go back
         }
         
     }
