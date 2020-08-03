@@ -16,14 +16,14 @@ Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
 Global InventoryEmptyPosition := [222, 505, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
-Global JakkBasePosX := 1252
-Global JakkBasePosY := 235
-Global JakkWarpPosX := 1287
-Global JakkWarpPosY := 262
-Global BackToSpotPosX := 1255
-Global BackToSpotPosY := 275
-Global BackToSpotWarpPosX := 1285
-Global BackToSpotWarpPosY := 282
+Global JakkBasePosX := 1254
+Global JakkBasePosY := 197
+Global JakkWarpPosX := JakkBasePosX + 20
+Global JakkWarpPosY := JakkBasePosY + 20
+Global BackToSpotPosX := JakkBasePosX
+Global BackToSpotPosY := JakkBasePosY + 40
+Global BackToSpotWarpPosX := JakkBasePosX
+Global BackToSpotWarpPosY := BackToSpotPosY + 12
 Global Laser1Pos := [1079, 917, 2, 2]
 Global Laser1PosContrast := [1081, 917, 2, 2]
 Global Laser2Pos := [1130, 917, 2, 2]
@@ -33,7 +33,7 @@ Numpad6::
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(InventoryFullPosition)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
@@ -235,7 +235,7 @@ StateMachineLogic()
         ComparedPercentage := Ant_ArrayCompare(InventoryFullSignature, SigCheck, 3, 0x00ffffff)
         DebugStringToFile("MinerFullCheck.txt", Ant_PrintArrayToString(SigCheck))
         Stdout(Format("WaitingForMinerFull: {1:s}", ComparedPercentage))
-        if (ComparedPercentage > 0.88) ; calculated in excel.
+        if (ComparedPercentage > 0.80) ; calculated in excel.
         {
             MouseMove, JakkBasePosX , JakkBasePosY
             Click, Right, %JakkBasePosX%, %JakkBasePosY%
@@ -266,8 +266,8 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1231, 102 ; approach ore
-                    Sleep 500
+                    ;Click, Left, 1231, 102 ; approach ore
+                    ;Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser1Errors := 0
                 }
@@ -296,8 +296,8 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, 1567, 108 ; click top ore
                     Sleep 500
-                    Click, Left, 1231, 102 ; approach ore
-                    Sleep 500
+                    ;Click, Left, 1231, 102 ; approach ore
+                    ;Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser2Errors := 0
                 }
@@ -346,8 +346,8 @@ StateMachineLogic()
         JakkStationX := 1600
         JakkStationY := 104
         Click, Left , %JakkStationX%, %JakkStationY%
-        OpenCargoX := 1309 
-        OpenCargoY := 102
+        OpenCargoX := 1310 
+        OpenCargoY := 100
         Click, Left , %OpenCargoX%, %OpenCargoY%
         InventoryPositionX := 533
         InventoryPositionY := 550
