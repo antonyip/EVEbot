@@ -1,6 +1,7 @@
 #SingleInstance, force
 #include GDIP.ahk
 #include Print.ahk
+#include Ant_Common.ahk
 
 SetTitleMatchMode, 2
 SetDefaultMouseSpeed, 5
@@ -9,16 +10,12 @@ LoopActive := False
 
 
 ; Variables
-Global PhotoImagePosition := [4, 78, 47-4, 120-78]
-Global PhotoImageSignature := "449B7D16CF4056A2CF3CE311BDEFF44C"
 Global InventoryFullPosition := [470, 504, 493-470, 513-504]
 Global InventoryFullSignature := Ant_LoadSignature("InventoryFullSignature.txt")
 Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
 Global InventoryEmptyPosition := [222, 505, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
-Global LookingForOresPosition := [0,0, 100 100]
-Global LookingForOresPositionSignature := Ant_LoadSignature("LookingForOres.txt")
 Global JakkBasePosX := 1252
 Global JakkBasePosY := 235
 Global JakkWarpPosX := 1287
@@ -29,19 +26,10 @@ Global BackToSpotWarpPosX := 1285
 Global BackToSpotWarpPosY := 282
 Global Laser1Pos := [1079, 917, 2, 2]
 Global Laser1PosContrast := [1081, 917, 2, 2]
-Global Laser1PosSignature := Ant_LoadSignature("Laser1PosSignature.txt")
 Global Laser2Pos := [1130, 917, 2, 2]
 Global Laser2PosContrast := [1132, 917, 2, 2]
-Global Laser2PosSignature := Ant_LoadSignature("Laser2PosSignature.txt")
 Global LockIconPosition := [1321, 88, 25, 25]
 Global LockIconPositionSignature := Ant_LoadSignature("LockIconPosition.txt")
-
-Numpad5::
-
-Stdout("hw - start")
-Stdout(Format(" a {1:d} {2:d} {3:d}",HomeCheckSignature[1],HomeCheckSignature[2], HomeCheckSignature[3]))
-Stdout("hw - end")
-return
 
 Numpad6::
 ; Test code.
@@ -49,8 +37,6 @@ pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
 debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
-DebugStringToFile("debugToFileArray2.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
 return
@@ -85,20 +71,6 @@ Numpad9::
 
 ExitApp
 return
-
-intparse(str) {
-
-	str = %str% ; removes formatting
-
-	Loop, Parse, str ; parse through each character
-
-		If A_LoopField in 0,1,2,3,4,5,6,7,8,9,.,+,-
-
-			int = %int%%A_LoopField% ; build integer
-
-	Return, int + 0.0 ; returns real number
-
-}
 
 ; Weights is ARGB, lower or increase it to have higher weightage
 Ant_ArrayCompare(ByRef iLeft, ByRef iRight, how=1, weights=0x00888888)
@@ -246,126 +218,6 @@ Ant_ArrayCompare(ByRef iLeft, ByRef iRight, how=1, weights=0x00888888)
 
 }
 
-Ant_ArrayCompress(ByRef iArray)
-{
-    returnArray := [iArray[1],iArray[2]]
-    lastVariable := iArray[3]
-    counter := 1
-    length := iArray[1] * iArray[2]
-    arrayIterator := 3
-    while (arrayIterator < length)
-    {
-        if(lastVariable == iArray[arrayIterator])
-        {
-            counter += 1
-        }
-        else
-        {
-            returnArray.Push(counter)
-            returnArray.Push(lastVariable)
-            lastVariable = iArray[arrayIterator]
-            counter = 1
-        }
-        arrayIterator += 1
-    }
-    return returnArray
-}
-
-Ant_CaptureScreenToArrayUsingArray(ByRef aInput)
-{
-    return Ant_CaptureScreenToArray(aInput[1],aInput[2],aInput[3],aInput[4])
-}
-
-Ant_PrintArrayToString(ByRef aInput)
-{
-    returnString := Format("{1:d}", aInput[1])
-    returnString .= "`n"
-    returnString .= Format("{1:d}", aInput[2])
-    returnString .= "`n"
-    length := aInput[1] * aInput[2]
-    iter := 3
-    while (iter < length + 3)
-    {
-        returnString .= Format("{1:d} `n", aInput[iter])
-        iter := iter + 1
-    }
-    return returnString
-}
-
-Ant_CaptureScreenToArray(x,y,w,h)
-{
-    ;FinalWidth := 640
-    ;FinalHeight := 480
-    FinalWidth := w
-    FinalHeight := h
-    myArray := [FinalWidth, FinalHeight]
-    pBitmap := Gdip_BitmapFromScreen()
-    if (pBitmap != -1)
-    {
-        hCounter := y
-        while(hCounter < y+h)
-        {
-            wCounter := x
-            while (wCounter < x+w)
-            {
-                ;PixelGetColor, myColor, wCounter, hCounter
-                myColor := Gdip_GetPixel(pBitmap, wCounter, hCounter)
-                myArray.Push(myColor)
-                if (myColor == 0)
-                {
-                    Stdout(Format("Time Started {1:s} Ended: {2:s}" , myTimeStarted, A_Now))
-                    Stdout("no color extracted")
-                    ExitApp
-                }
-                wCounter := wCounter + 1
-            }
-            hCounter := hCounter + 1
-        }
-    }
-    Else
-    {
-        Stdout("Capture failed!")
-    }
-    GDIP_DisposeImage(pBitMap)
-    return myArray
-}
-
-Ant_LoadSignature(fileName)
-{
-    returnArray := []
-    f := FileOpen(fileName,"r")
-    while (TextLine := f.ReadLine())
-    {
-        returnArray.Push(TextLine)
-    }
-    f.Close()
-    return returnArray
-}
-
-DebugArrayToFile(fileName, ByRef aInput)
-{
-    f := FileOpen(fileName,"w")
-    i := 1
-    while(i < (aInput[1] * aInput[2])) 
-    {
-        myString := Format("{1:d} ", aInput[i])
-        f.Write(myString)
-        i := i + 1
-    }
-    f.Close()
-    Stdout(Format("WroteTo {1:s}!", fileName))
-}
-
-DebugStringToFile(fileName, ByRef aInput)
-{
-    f := FileOpen(fileName,"w")
-    i := 1
-    f.Write(aInput)
-    f.Close()
-    Stdout(Format("WroteTo {1:s}!", fileName))
-}
-
-
 /* 
 0 = Idle
 1 = Mining
@@ -410,23 +262,6 @@ StateMachineLogic()
                 Laser1Errors += 1
                 if (Laser1Errors > 5) ; More than 5 seconds not mining
                 {                
-                    Click, Left, 1567, 108 ; click top ore
-                    Sleep 1000
-                    ; if (false) ; change lock checking
-                    ; {
-                    ;   LockIconPositionTest := Ant_CaptureScreenToArrayUsingArray(LockIconPosition)
-                    ;   CompareLock := Ant_ArrayCompare(LockIconPositionTest, LockIconPositionSignature, 4)
-                    ;   DebugStringToFile("SigCheckLock.txt", Ant_PrintArrayToString(LockIconPositionTest))
-                    ;   Stdout(Format("LockNeeded {1:f} > 0.9", CompareLock))
-                    ;   if (CompareLock > 0.88)
-                    ;   {
-                    ;       Click, Left, 1331, 102 ; lock target
-                    ;   }
-                    ;   Sleep 1500
-                    ; }
-                    ; Click, Left, 1234, 102 ; approach
-                    ; Sleep 2000
-
                     l1x := 1075 + 10
                     l1y := 882 + 10
                     Click, Left, %l1x% , %l1y% ; start mining
@@ -536,7 +371,6 @@ StateMachineLogic()
     }
     else if (enStateMachine == 5)
     {
-        SigCheck := Ant_CaptureScreenToArrayUsingArray(LookingForOres)
         Stdout("Back To Mining")
         enStateMachine := 1
         
