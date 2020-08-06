@@ -10,26 +10,39 @@ LoopActive := False
 
 
 ; Variables
-Global InventoryFullPosition := [470, 504, 493-470, 513-504]
+Global InventoryFullPosition := [450, 470, 493-470, 513-504]
 Global InventoryFullSignature := Ant_LoadSignature("InventoryFullSignature.txt")
 Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
-Global InventoryEmptyPosition := [222, 505, 5, 5]
+Global InventoryEmptyPosition := [205, 470, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
-Global JakkBasePosX := 1254
-Global JakkBasePosY := 197
-Global JakkWarpPosX := JakkBasePosX + 20
-Global JakkWarpPosY := JakkBasePosY + 20
+Global JakkBasePosX := 1290
+Global JakkBasePosY := 100
+Global JakkWarpPosX := JakkBasePosX + 33
+Global JakkWarpPosY := JakkBasePosY + 11
 Global BackToSpotPosX := JakkBasePosX
-Global BackToSpotPosY := JakkBasePosY + 40
-Global BackToSpotWarpPosX := JakkBasePosX + 20
-Global BackToSpotWarpPosY := BackToSpotPosY + 10
-Global Laser1Pos := [1079, 917, 2, 2]
-Global Laser1PosContrast := [1081, 917, 2, 2]
-Global Laser2Pos := [1130, 917, 2, 2]
-Global Laser2PosContrast := [1132, 917, 2, 2]
+Global BackToSpotPosY := JakkBasePosY + 22
+Global BackToSpotWarpPosX := BackToSpotPosX + 33
+Global BackToSpotWarpPosY := BackToSpotPosY + 11
+Global MainTabX := 1534
+Global MainTabY := 195
+Global TopOrePositionX := 1545
+Global TopOrePositionY := 240
+Global Laser1Pos := [1079, 904, 2, 2]
+Global Laser1PosContrast := [1081, 904, 2, 2]
+Global Laser2Pos := [1130, 904, 2, 2]
+Global Laser2PosContrast := [1132, 904, 2, 2]
+Global OpenCargoX := 1593 
+Global OpenCargoY := 128
+Global InventoryPositionX := 419
+Global InventoryPositionY := 544
+Global CargoDropPosX := 975
+Global CargoDropPosY := 500
+Global TransferButtonX := 1068
+Global TransferButtonY := 714
 
 Numpad6::
+!v::
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
@@ -39,7 +52,7 @@ Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
 return
 
-Numpad7::
+!b::
 pToken := Gdip_Startup()
 LoopActive := True
 MainLoopCounter := 0
@@ -50,22 +63,23 @@ While(LoopActive)
     Sleep, 750
     StateMachineLogic()
     MainLoopCounter += 1
-    if (MainLoopCounter > 180)
+    if (MainLoopCounter > 60)
     {
         ; Hopefully restarting doesn't kill it.
         Gdip_Shutdown(pToken)
         Sleep 5000
         pToken := Gdip_Startup()
+        MainLoopCounter := 0
     }
 }
 Gdip_Shutdown(pToken)
 return
 
-Numpad8::
+!n::
 LoopActive := False
 return
 
-Numpad9::
+!m::
 
 ExitApp
 return
@@ -237,10 +251,8 @@ StateMachineLogic()
         Stdout(Format("WaitingForMinerFull: {1:s}", ComparedPercentage))
         if (ComparedPercentage > 0.80) ; calculated in excel.
         {
-            MouseMove, JakkBasePosX , JakkBasePosY
             Click, Right, %JakkBasePosX%, %JakkBasePosY%
             Sleep, 500
-            MouseMove, %JakkWarpPosX% , %JakkWarpPosY%
             Click, Left, %JakkWarpPosX% , %JakkWarpPosY%
             enStateMachine := 2
             Stdout("Going Home")
@@ -260,14 +272,12 @@ StateMachineLogic()
                 Laser1Errors += 1
                 if (Laser1Errors > 5) ; More than 5 seconds not mining
                 {
-                    l1x := 1075 + 10
-                    l1y := 882 + 10
+                    l1x := Laser1Pos[1]
+                    l1y := Laser1Pos[2] - 20
                     Click, Left, %l1x% , %l1y% ; start mining
                     Sleep 500
-                    Click, Left, 1567, 108 ; click top ore
+                    Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
                     Sleep 500
-                    ;Click, Left, 1231, 102 ; approach ore
-                    ;Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser1Errors := 0
                 }
@@ -290,14 +300,12 @@ StateMachineLogic()
                 Laser2Errors += 1
                 if (Laser2Errors > 5) ; More than 5 seconds not mining
                 {        
-                    l2x := 1121 + 10 
-                    l2y := 882 + 10
+                    l1x := Laser2Pos[1]
+                    l1y := Laser2Pos[2] - 20
                     Click, Left, %l2x% , %l2y% ; start mining
                     Sleep 500
-                    Click, Left, 1567, 108 ; click top ore
+                    Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
                     Sleep 500
-                    ;Click, Left, 1231, 102 ; approach ore
-                    ;Sleep 500
                     Click, Left, 100 , 1000 ; click air
                     Laser2Errors := 0
                 }
@@ -319,9 +327,8 @@ StateMachineLogic()
     else if (enStateMachine == 2)
     {
         Stdout("Waiting to reach home")
-        UndockCheckX := 1530
-        UndockCheckY := 61
-        Click, Left , %UndockCheckX%, %UndockCheckY%
+
+        Click, Left , %MainTabX%, %MainTabY% ; click main tab
         Sleep 12000
         ; TODO: add signature check to see if tab was switched
         enStateMachine := 3
@@ -343,20 +350,10 @@ StateMachineLogic()
     }
     else if (enStateMachine == 4)
     {
-        JakkStationX := 1600
-        JakkStationY := 104
-        Click, Left , %JakkStationX%, %JakkStationY%
-        OpenCargoX := 1310 
-        OpenCargoY := 100
+        Click, Left , %TopOrePositionX%, %TopOrePositionY%
         Click, Left , %OpenCargoX%, %OpenCargoY%
-        InventoryPositionX := 533
-        InventoryPositionY := 550
         Click, Left, %InventoryPositionX%, %InventoryPositionY%
-        CargoDropPosX := 1000
-        CargoDropPosY := 344
         MouseClickDrag, Left, %InventoryPositionX%, %InventoryPositionY%, %CargoDropPosX%, %CargoDropPosY%
-        TransferButtonX := 1175
-        TransferButtonY := 550
         Click, Left , %TransferButtonX%, %TransferButtonY%
         SigCheck := Ant_CaptureScreenToArrayUsingArray(InventoryEmptyPosition)
         ComparedPercentage := Ant_ArrayCompare(InventoryEmptyPositionSignature, SigCheck)
@@ -368,7 +365,7 @@ StateMachineLogic()
             Sleep 500
             Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
             Sleep 500
-            Click, Left, 1700, 64 ; click the ores tab
+            Click, Left, 1710, 68 ; click the ores tab
             Sleep 12000 ; witing to go back
         }
         
