@@ -16,6 +16,13 @@
 					"color": "white",
 					"singleInstance": true,
 					"command": "cmd /C e:\\AutoHotKey\\AutoHotKey.exe ${file}", // This is executed in the terminal.
+				},
+				{
+					"cwd": "",     // Terminal initial folder ${workspaceFolder} and os user home as defaults
+					"name": "| Run Current File Dost |",
+					"color": "white",
+					"singleInstance": true,
+					"command": "cmd /C C:\\AntonRepo\\AutoHotkey\\AutoHotKey.exe ${file}", // This is executed in the terminal.
 				}
 			]
 		}
