@@ -10,14 +10,14 @@ LoopActive := False
 
 
 ; Variables
-Global InventoryFullPosition := [450, 470, 493-470, 513-504]
+Global InventoryFullPosition := [350, 500, 5, 5]
 Global InventoryFullSignature := Ant_LoadSignature("InventoryFullSignature.txt")
 Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
-Global InventoryEmptyPosition := [205, 470, 5, 5]
+Global InventoryEmptyPosition := [63, 500, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
 Global JakkBasePosX := 1290
-Global JakkBasePosY := 100
+Global JakkBasePosY := 104
 Global JakkWarpPosX := JakkBasePosX + 33
 Global JakkWarpPosY := JakkBasePosY + 11
 Global BackToSpotPosX := JakkBasePosX
@@ -27,11 +27,15 @@ Global BackToSpotWarpPosY := BackToSpotPosY + 11
 Global MainTabX := 1534
 Global MainTabY := 195
 Global TopOrePositionX := 1545
-Global TopOrePositionY := 240
-Global Laser1Pos := [1079, 904, 2, 2]
-Global Laser1PosContrast := [1081, 904, 2, 2]
-Global Laser2Pos := [1130, 904, 2, 2]
-Global Laser2PosContrast := [1132, 904, 2, 2]
+Global TopOrePositionY := 247
+Global Laser1X := 1079
+Global Laser1Y := 904
+Global Laser1Pos := [Laser1X, Laser1Y, 2, 2]
+Global Laser1PosContrast := [Laser1X + 2, Laser1Y, 2, 2]
+Global Laser2X := 1130
+Global Laser2Y := 904
+Global Laser2Pos := [Laser2X, Laser2Y, 2, 2]
+Global Laser2PosContrast := [Laser2X + 2, Laser2Y, 2, 2]
 Global OpenCargoX := 1593 
 Global OpenCargoY := 128
 Global InventoryPositionX := 419
@@ -40,6 +44,8 @@ Global CargoDropPosX := 975
 Global CargoDropPosY := 500
 Global TransferButtonX := 1068
 Global TransferButtonY := 714
+Global OresTabX := 1705
+Global OresTabY := 195
 
 Numpad6::
 !v::
@@ -272,8 +278,8 @@ StateMachineLogic()
                 Laser1Errors += 1
                 if (Laser1Errors > 5) ; More than 5 seconds not mining
                 {
-                    l1x := Laser1Pos[1]
-                    l1y := Laser1Pos[2] - 20
+                    l1x := Laser1X
+                    l1y := Laser1Y - 20
                     Click, Left, %l1x% , %l1y% ; start mining
                     Sleep 500
                     Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
@@ -300,8 +306,8 @@ StateMachineLogic()
                 Laser2Errors += 1
                 if (Laser2Errors > 5) ; More than 5 seconds not mining
                 {        
-                    l1x := Laser2Pos[1]
-                    l1y := Laser2Pos[2] - 20
+                    l2x := Laser2X
+                    l2y := Laser2Y - 20
                     Click, Left, %l2x% , %l2y% ; start mining
                     Sleep 500
                     Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
@@ -365,7 +371,7 @@ StateMachineLogic()
             Sleep 500
             Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
             Sleep 500
-            Click, Left, 1710, 68 ; click the ores tab
+            Click, Left, %OresTabX%, %OresTabY% ; click the ores tab
             Sleep 12000 ; witing to go back
         }
         
