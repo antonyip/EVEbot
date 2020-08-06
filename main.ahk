@@ -46,13 +46,16 @@ Global TransferButtonX := 1068
 Global TransferButtonY := 714
 Global OresTabX := 1705
 Global OresTabY := 195
+Global NoMoreOres := [1646, 233, 20, 20]
+Global NoMoreOresSignature := Ant_LoadSignature("NoMoreOresSig.txt")
+
 
 Numpad6::
 !v::
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(InventoryFullPosition)
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(NoMoreOres)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
@@ -265,6 +268,16 @@ StateMachineLogic()
         }
         else
         {
+
+            ; no more ores check
+            NoMoreOresCheck := Ant_CaptureScreenToArrayUsingArray(NoMoreOres)
+            ComparedPercentage := Ant_ArrayCompare(NoMoreOresCheck, NoMoreOresSignature, 3, 0x00ffffff)
+            Stdout(Format("NoMoreORes?: {1:s}", ComparedPercentage))
+            if (ComparedPercentage > 0.88)
+            {
+                enStateMachine := 5
+            }
+
             Laser1PosTest := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
             Laser1PosTestContrast := Ant_CaptureScreenToArrayUsingArray(Laser1PosContrast)
             CompareLaser1 := Ant_ArrayCompare(Laser1PosTest, Laser1PosTestContrast, 3, 0x00ffffff)
@@ -284,7 +297,7 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
                     Sleep 500
-                    Click, Left, 100 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click chatbox
                     Laser1Errors := 0
                 }
             }
@@ -312,7 +325,7 @@ StateMachineLogic()
                     Sleep 500
                     Click, Left, %TopOrePositionX%, %TopOrePositionY% ; click top ore
                     Sleep 500
-                    Click, Left, 100 , 1000 ; click air
+                    Click, Left, 100 , 1000 ; click chatbox
                     Laser2Errors := 0
                 }
             }
@@ -367,18 +380,18 @@ StateMachineLogic()
         if (ComparedPercentage > 0.88)
         {
             enStateMachine := 5
-            Click, Right , %BackToSpotPosX%, %BackToSpotPosY%
-            Sleep 500
-            Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
-            Sleep 500
-            Click, Left, %OresTabX%, %OresTabY% ; click the ores tab
-            Sleep 12000 ; witing to go back
         }
         
     }
     else if (enStateMachine == 5)
     {
         Stdout("Back To Mining")
+        Click, Right , %BackToSpotPosX%, %BackToSpotPosY%
+        Sleep 500
+        Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
+        Sleep 500
+        Click, Left, %OresTabX%, %OresTabY% ; click the ores tab
+        Sleep 12000 ; witing to go back
         enStateMachine := 1
         
     }
