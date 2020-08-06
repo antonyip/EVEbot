@@ -3,7 +3,7 @@
 #include Print.ahk
 
 SetTitleMatchMode, 2
-SetDefaultMouseSpeed, 5
+SetDefaultMouseSpeed, 8
 LoopActive := False
 
 
@@ -11,28 +11,33 @@ LoopActive := False
 ; Variables
 Global PhotoImagePosition := [4, 78, 47-4, 120-78]
 Global PhotoImageSignature := "449B7D16CF4056A2CF3CE311BDEFF44C"
-Global InventoryFullPosition := [559, 446, 493-470, 513-504]
+Global InventoryFullPosition := [535, 446, 493-470, 513-504]
 Global InventoryFullSignature := Ant_LoadSignature("InventoryFullSignature.txt")
 Global HomeCheckPosition := [1844,98,1880-1844,109-98]
 Global HomeCheckPositionSignature := Ant_LoadSignature("HomeCheckPosition.txt")
-Global InventoryEmptyPosition := [236, 447, 5, 5]
+Global InventoryEmptyPosition := [221, 447, 5, 5]
 Global InventoryEmptyPositionSignature := Ant_LoadSignature("InventoryEmptyPosition.txt")
 Global LookingForOresPosition := [0,0, 100 100]
 Global LookingForOresPositionSignature := Ant_LoadSignature("LookingForOres.txt")
 Global JakkBasePosX := 1252
-Global JakkBasePosY := 235
-Global JakkWarpPosX := 1287
-Global JakkWarpPosY := 266
+Global JakkBasePosY := 221
+Global JakkWarpPosX := JakkBasePosX + 30
+Global JakkWarpPosY := JakkBasePosY + 13
 Global BackToSpotPosX := 1255
 Global BackToSpotPosY := 277
 Global BackToSpotWarpPosX := 1285
 Global BackToSpotWarpPosY := 293
 Global Laser1Pos := [1079, 917, 2, 2]
+Global Laser1PosContrast := [1081, 917, 2, 2]
 Global Laser1PosSignature := Ant_LoadSignature("Laser1PosSignature.txt")
 Global Laser2Pos := [1130, 917, 2, 2]
+Global Laser2PosContrast := [1132, 917, 2, 2]
 Global Laser2PosSignature := Ant_LoadSignature("Laser2PosSignature.txt")
 Global LockIconPosition := [1321, 88, 25, 25]
 Global LockIconPositionSignature := Ant_LoadSignature("LockIconPosition.txt")
+Global TeamViewerPosition := [1111, 500, 20, 20]
+Global TeamViewerPositionSignature := Ant_LoadSignature("TeamViewSignature.txt")
+
 
 Numpad5::
 
@@ -45,8 +50,10 @@ return
 ; Test code.
 pToken := Gdip_Startup()
 Stdout("Saving Sig To File - Start")
-debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(TeamViewerPosition)
 DebugStringToFile("debugToFileArray.txt", Ant_PrintArrayToString(debugToFileArray))
+debugToFileArray := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
+DebugStringToFile("debugToFileArray2.txt", Ant_PrintArrayToString(debugToFileArray))
 Stdout(Format("Saving Sig To File - End {1:d}", 0xff))
 Gdip_Shutdown(pToken)
 return
@@ -59,15 +66,16 @@ myTimeStarted := A_Now
 While(LoopActive)
 {
     WinActivate, EVE -
-    Sleep, 1000
+    Sleep, 750
     StateMachineLogic()
     MainLoopCounter += 1
-    if (MainLoopCounter > 180)
+    if (MainLoopCounter > 60)
     {
         ; Hopefully restarting doesn't kill it.
         Gdip_Shutdown(pToken)
         Sleep 5000
         pToken := Gdip_Startup()
+        MainLoopCounter := 0
     }
 }
 Gdip_Shutdown(pToken)
@@ -374,6 +382,16 @@ DebugStringToFile(fileName, ByRef aInput)
 StateMachineLogic()
 {
     static enStateMachine := 1
+
+    SigCheckTV := Ant_CaptureScreenToArrayUsingArray(TeamViewerPosition)
+    ComparedPercentage := Ant_ArrayCompare(TeamViewerPositionSignature, SigCheckTV, 3, 0x00ffffff)
+    if (ComparedPercentage > 0.98) ; calculated in excel.
+    {
+        TVX := 1142
+        TVY := 582
+        Click, Left, %TVX%, %TVY%
+    }
+
     if (enStateMachine == 1)
     {
         ; okay, done once.
@@ -394,11 +412,12 @@ StateMachineLogic()
         else
         {
             Laser1PosTest := Ant_CaptureScreenToArrayUsingArray(Laser1Pos)
-            CompareLaser1 := Ant_ArrayCompare(Laser1PosTest, Laser1PosSignature, 3, 0x00ffffff)
+            Laser1PosTestContrast := Ant_CaptureScreenToArrayUsingArray(Laser1PosContrast)
+            CompareLaser1 := Ant_ArrayCompare(Laser1PosTest, Laser1PosTestContrast, 3, 0x00ffffff)
             Stdout(Format("Laser1: {1:s}", CompareLaser1))
             
             static Laser1Errors := 6 ; start from 6 so it triggers faster
-            if (CompareLaser1 > 0.80)
+            if (CompareLaser1 > 0.40)
             {
                 Stdout(Format("I think this is Laser 1 not mining {1:d}", Laser1Errors))
                 Stdout(Format("Laser1Debug: {1:s} {2:d} {3:d} {4:d} {5:d}", CompareLaser1, Laser1PosTest[3], Laser1PosTest[4], Laser1PosTest[5], Laser1PosTest[6]))
@@ -438,11 +457,12 @@ StateMachineLogic()
             }
 
             Laser2PosTest := Ant_CaptureScreenToArrayUsingArray(Laser2Pos)
-            CompareLaser2 := Ant_ArrayCompare(Laser2PosTest, Laser2PosSignature, 3, 0x00ffffff)
+            Laser2PosTestContrast := Ant_CaptureScreenToArrayUsingArray(Laser2PosContrast)
+            CompareLaser2 := Ant_ArrayCompare(Laser2PosTest, Laser2PosTestContrast, 3, 0x00ffffff)
             Stdout(Format("Laser2: {1:s}", CompareLaser2))
 
             static Laser2Errors := 4 ; start from 6 so it triggers faster
-            if (CompareLaser2 > 0.80)
+            if (CompareLaser2 > 0.40)
             {
                 Stdout(Format("I think this is Laser 2 not mining {1:d}", Laser2Errors))
                 Stdout(Format("Laser2Debug: {1:s} {2:d} {3:d} {4:d} {5:d}", CompareLaser2, Laser2PosTest[3], Laser2PosTest[4], Laser2PosTest[5], Laser2PosTest[6]))
@@ -502,7 +522,7 @@ StateMachineLogic()
     else if (enStateMachine == 4)
     {
         JakkStationX := 1600
-        JakkStationY := 109
+        JakkStationY := 111
         Click, Left , %JakkStationX%, %JakkStationY%
         OpenCargoX := 1309 
         OpenCargoY := 102
@@ -512,10 +532,11 @@ StateMachineLogic()
         Click, Left, %InventoryPositionX%, %InventoryPositionY%
         CargoDropPosX := 1000
         CargoDropPosY := 344
-        Sleep 200
+        Sleep 500
         MouseClickDrag, Left, %InventoryPositionX%, %InventoryPositionY%, %CargoDropPosX%, %CargoDropPosY%
         TransferButtonX := 1175
         TransferButtonY := 550
+        Sleep 500
         Click, Left , %TransferButtonX%, %TransferButtonY%
         SigCheck := Ant_CaptureScreenToArrayUsingArray(InventoryEmptyPosition)
         ComparedPercentage := Ant_ArrayCompare(InventoryEmptyPositionSignature, SigCheck)
@@ -524,8 +545,10 @@ StateMachineLogic()
         {
             enStateMachine := 5
             Click, Right , %BackToSpotPosX%, %BackToSpotPosY%
+            Sleep 500
             Click, Left , %BackToSpotWarpPosX%, %BackToSpotWarpPosY%
-            Click, Left, 1700, 64 ; click the ores tab
+            Sleep 500
+            Click, Left, 1714, 64 ; click the ores tab
         }
         
     }
